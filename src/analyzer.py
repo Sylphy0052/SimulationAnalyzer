@@ -1,7 +1,7 @@
 # データをなんやかんやするクラス
 from src.common import get_file_list
 from src.parser import parse_dat
-from src.draw_graph import draw_rtt, draw_two_line_graph
+from src.draw_graph import draw_rtt, draw_many_line_graph
 from src.data import Data
 from src.classify import classify_by_adjust
 import sys, os
@@ -57,7 +57,8 @@ class Analyzer:
 
         X, Y, labels = classify_by_adjust(self.data_dict)
 
-        location = "upper right"
-        sys.exit(1)
+        location = "upper left"
 
-        draw_two_line_graph(X, Y1, Y2, labels, location, fig_name)
+        ax_labels = ["Tx Rx distance (um)", "Mean of RTT (s)"]
+
+        draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
