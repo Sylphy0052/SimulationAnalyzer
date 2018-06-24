@@ -1,4 +1,5 @@
 from enum import Enum
+import pandas as pd
 
 # Passive or Active
 class MoleculeType(Enum):
@@ -8,6 +9,7 @@ class MoleculeType(Enum):
 # データを格納するクラス
 class Data:
     def __init__(self):
+        self.dat_data = None
         self.rtt_data = None
         self.adjust_data = None
         self.collision_data = None
@@ -18,6 +20,23 @@ class Data:
             return False
         else:
             return True
+
+    def get_column(self):
+        return ["File Name", "Mean", "Median", "Var", "Std", "Min", "Max"]
+
+    def to_array(self):
+        if self.rtt_data is None:
+            from src.parser import parse_rtt
+            self.rtt_data = parse_rtt("./result/batch_" + self.dat_data.output_file_name)
+        fname = self.dat_data.dat_file_name
+        mean = self.rtt_data.mean
+        median = self.rtt_data.median
+        var = self.rtt_data.var
+        std = self.rtt_data.std
+        minimum = self.rtt_data.minimum
+        maximum = self.rtt_data.maximum
+        return [fname, mean, median, var, std, minimum, maximum]
+
 
 ## Parameter ##
 """
@@ -34,7 +53,7 @@ diameter: 分子の半径
 # オプション
 molecule_type: PASSIVE or ACTIVE
 decomposing: 0 ~ 3
-adjust: True(数) or False(0)
+adjust_num: True(数) or False(0)
 is_fec: True or False
 fecRequirePacket:必要数
 fecRate:レート
@@ -43,12 +62,54 @@ packetDiameter: 分子の半径
 outputFile: 出力ファイル名
 """
 class DatData:
-    def __init__(self, file_name):
-        self.dat_file_name = file_name
+    def __init__(self, fname):
+        self.dat_file_name = fname
 
+"""
+rtt: 全ての結果を格納
+mean: 平均
+median: 中央値
+var: 分散
+std: 標準偏差
+num: シミュレーション回数
+minimum: 最小値
+maximum: 最大値
+"""
 class RTTData:
     def __init__(self):
-        pass
+        self.rtt = []
+
+    def create_plot_data(self):
+        X = [0]
+        Y1 = [0]
+        Y2 = [0]
+        count = 0
+        prob = 0.0
+        cum_prob = 0.0
+
+        plot_range = self.maximum / 100.0
+        head = 0
+        tail= plot_range
+
+        index = 0
+
+        while(index < len(self.rtt)):
+            # 範囲内の時
+            if self.rtt[index] < tail:
+                count += 1
+            # 範囲外になったら
+            else:
+                prob = float(count) / len(self.rtt) * 100
+                cum_prob += prob
+                X.append(tail)
+                Y1.append(prob)
+                Y2.append(cum_prob)
+                count = 0
+                head += plot_range
+                tail += plot_range
+            index += 1
+
+        return X, Y1, Y2
 
 class AdjustData:
     def __init__(self):
