@@ -1,7 +1,7 @@
 # データをなんやかんやするクラス
 from src.common import get_file_list
 from src.parser import parse_dat
-from src.draw_graph import draw_rtt, draw_many_line_graph
+from src.draw_graph import draw_rtt, draw_many_line_graph, Target
 from src.data import Data
 from src.classify import classify_by_adjust
 import sys, os
@@ -53,12 +53,23 @@ class Analyzer:
         if not os.path.isdir(dir_path):
                 os.makedirs(dir_path)
 
+        # Mean
         fig_name = dir_path + "mean.png"
-
-        X, Y, labels = classify_by_adjust(self.data_dict)
-
+        X, Y, labels = classify_by_adjust(self.data_dict, Target.Mean)
         location = "upper left"
-
         ax_labels = ["Tx Rx distance (um)", "Mean of RTT (s)"]
+        draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
 
+        # Median
+        fig_name = dir_path + "median.png"
+        X, Y, labels = classify_by_adjust(self.data_dict, Target.Median)
+        location = "upper left"
+        ax_labels = ["Tx Rx distance (um)", "Median of RTT (s)"]
+        draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
+
+        # Jitter
+        fig_name = dir_path + "jitter.png"
+        X, Y, labels = classify_by_adjust(self.data_dict, Target.Jitter)
+        location = "upper left"
+        ax_labels = ["Tx Rx distance (um)", "Jitter of RTT (s)"]
         draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)

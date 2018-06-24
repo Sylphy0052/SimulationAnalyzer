@@ -9,10 +9,10 @@ from enum import Enum
 COLOR_LIST = ['r', 'g', 'b', 'm', 'c', 'y', 'k', 'r', 'g', 'b', 'm', 'c', 'y', 'k']
 STYLE_LIST = ['-', '--', '-.', ':', '-', '--', '-.', ':', '-', '--', '-.', ':', '-', '--', '-.', ':']
 
-def Target(Enum):
+class Target(Enum):
     Mean = 1
     Median = 2
-    Std = 3
+    Jitter = 3
 
 def draw_rtt(data):
     # RTT fileを読み込んでなかったら
@@ -58,6 +58,7 @@ def draw_two_line_graph(X, Y1, Y2, labels, ax_labels, location, fig_name):
     plt.legend(loc=location)
 
     plt.grid(True)
+    plt.xticks(X)
 
     if max(X) > 10 ** 6:
         plt.gca().xaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
@@ -78,6 +79,7 @@ def draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name):
     plt.legend(loc=location)
 
     plt.grid(True)
+    plt.xticks(X)
 
     if max(X) > 10 ** 6:
         plt.gca().xaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))

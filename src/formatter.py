@@ -1,6 +1,14 @@
+from src.draw_graph import Target
 
-# adjust/distance/duplication
-def dict_to_adjust_plot_data(data_dict):
+def get_value(data, target_type):
+    if target_type is Target.Mean:
+        return data.rtt_data.mean
+    elif target_type is Target.Median:
+        return data.rtt_data.median
+    elif target_type is Target.Jitter:
+        return data.rtt_data.std
+
+def dict_to_adjust_plot_data(data_dict, target_type):
     X = []
     Y = []
     labels = []
@@ -16,7 +24,7 @@ def dict_to_adjust_plot_data(data_dict):
                 x = data.dat_data.distance
                 if not x in X:
                     X.append(x)
-                y.append(data.rtt_data.mean)
+                y.append(get_value(data, target_type))
             Y.append(y)
 
     return X, Y, labels
