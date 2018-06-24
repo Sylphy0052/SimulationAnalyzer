@@ -1,12 +1,15 @@
-from src.data import DatData, MoleculeType
+from src.data import DatData, RTTData, MoleculeType
 from src.common import split_complex_string
-import sys
-# ファイルを読み込む関数
+import sys, math
+from statistics import mean, variance, stdev, median
+import numpy as np
+
+# ファイルを読み込む関数たち
 
 # dat fileを解析する
-def parse_dat(file_name):
-    dat_data = DatData(file_name)
-    with open(file_name, 'r') as f:
+def parse_dat(fname):
+    dat_data = DatData(fname)
+    with open(fname, 'r') as f:
         for line in f:
             if line == '\n' or line[0] == '*':
                 continue
@@ -52,3 +55,20 @@ def parse_dat(file_name):
                 dat_data.output_file_name = value.rstrip()
 
     return dat_data
+
+# RTT file を解析する
+def parse_rtt(fname):
+    rtt_data = RTTData()
+    with open(fname, 'r') as f:
+        for line in f:
+            rtt_data.rtt.append(int(line))
+    rtt_data.rtt.sort()
+    rtt_data.mean = mean(rtt_data.rtt)
+    rtt_data.median = median(rtt_data.rtt)
+    rtt_data.var = np.var(rtt_data.rtt)
+    rtt_data.std = np.std(rtt_data.rtt)
+    rtt_data.num = len(rtt_data.rtt)
+    rtt_data.minimum = rtt_data.rtt[0]
+    rtt_data.maximum = rtt_data.rtt[-1]
+
+    return rtt_data
