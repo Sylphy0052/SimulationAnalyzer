@@ -28,7 +28,7 @@ class Data:
         if self.rtt_data is None:
             from src.parser import parse_rtt
             self.rtt_data = parse_rtt("./result/batch_" + self.dat_data.output_file_name)
-        fname = self.dat_data.dat_file_name
+        fname = self.dat_data.dat_file_name.split('/')[1]
         mean = self.rtt_data.mean
         median = self.rtt_data.median
         var = self.rtt_data.var
