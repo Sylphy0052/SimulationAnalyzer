@@ -12,7 +12,20 @@ STYLE_LIST = ['-', '--', '-.', ':', '-', '--', '-.', ':', '-', '--', '-.', ':', 
 class Target(Enum):
     Mean = 1
     Median = 2
-    Jitter = 3
+    Jitter = 3 # Standard deviation
+
+class Parameter(Enum):
+    Distance = 1
+    Duplication = 2
+    MessageNum = 3
+    RTO = 4
+    StepLength = 5
+    MoleculeType = 6
+    Decomposing = 7
+    AdjustNum = 8
+    IsFEC = 9
+    FEC_Rate = 10
+
 
 def draw_rtt(data):
     # RTT fileを読み込んでなかったら
