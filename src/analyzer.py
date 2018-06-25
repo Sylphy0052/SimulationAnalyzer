@@ -1,9 +1,9 @@
 # データをなんやかんやするクラス
 from src.common import get_file_list
 from src.parser import parse_dat
-from src.draw_graph import draw_rtt, draw_many_line_graph, Target
+from src.draw_graph import draw_rtt, draw_many_line_graph, Target, Parameter
 from src.data import Data
-from src.classify import classify_by_adjust
+from src.classify import classify_dict
 import sys, os
 import pandas as pd
 
@@ -49,27 +49,29 @@ class Analyzer:
         # X: distance or duplication
         # Y1: no adjust
         # Y2: adjust
+
+        # ディレクトリ作成
         dir_path = "./adjust_fig/"
         if not os.path.isdir(dir_path):
                 os.makedirs(dir_path)
 
         # Mean
         fig_name = dir_path + "mean.png"
-        X, Y, labels = classify_by_adjust(self.data_dict, Target.Mean)
+        X, Y, labels = classify_dict(self.data_dict, Parameter.Distance, Target.Mean, [Parameter.Duplication, Parameter.AdjustNum])
         location = "upper left"
         ax_labels = ["Tx Rx distance (um)", "Mean of RTT (s)"]
         draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
 
         # Median
         fig_name = dir_path + "median.png"
-        X, Y, labels = classify_by_adjust(self.data_dict, Target.Median)
+        X, Y, labels = classify_dict(self.data_dict, Parameter.Distance, Target.Median, [Parameter.Duplication, Parameter.AdjustNum])
         location = "upper left"
         ax_labels = ["Tx Rx distance (um)", "Median of RTT (s)"]
         draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
 
         # Jitter
         fig_name = dir_path + "jitter.png"
-        X, Y, labels = classify_by_adjust(self.data_dict, Target.Jitter)
+        X, Y, labels = classify_dict(self.data_dict, Parameter.Distance, Target.Jitter, [Parameter.Duplication, Parameter.AdjustNum])
         location = "upper left"
         ax_labels = ["Tx Rx distance (um)", "Jitter of RTT (s)"]
         draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)

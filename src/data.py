@@ -1,5 +1,6 @@
 from enum import Enum
 import pandas as pd
+import sys
 
 # Passive or Active
 class MoleculeType(Enum):
@@ -14,6 +15,31 @@ class Data:
         self.adjust_data = None
         self.collision_data = None
         self.retransmission_data = None
+
+    def get_value(data, target_type):
+        from src.draw_graph import Target, Parameter
+        # Target
+        # if type(target_type) is Target:
+        if isinstance(target_type, Target):
+            if target_type is Target.Mean:
+                return data.rtt_data.mean
+            elif target_type is Target.Median:
+                return data.rtt_data.median
+            elif target_type is Target.Jitter:
+                return data.rtt_data.std
+
+        # Parameter
+        elif isinstance(target_type, Parameter):
+            if target_type is Parameter.Distance:
+                return data.dat_data.distance
+            elif target_type is Parameter.Duplication:
+                return data.dat_data.duplication
+            elif target_type is Parameter.AdjustNum:
+                return data.dat_data.adjust_num
+            else:
+                print("isinstance in data not defined {}...".format(target_type.name))
+                sys.exit(1)
+
 
     def is_rtt(self):
         if self.rtt_data is None:
