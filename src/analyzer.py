@@ -44,6 +44,9 @@ class Analyzer:
         for _, data in self.data_dict.items():
             draw_rtt(data)
 
+    def draw_decompoing_graph(self):
+        pass
+
     def draw_adjust_graph(self):
         # Mean Graph
         # X: distance or duplication
@@ -51,7 +54,7 @@ class Analyzer:
         # Y2: adjust
 
         # ディレクトリ作成
-        dir_path = "./adjust_fig/"
+        dir_path = "./result_fig/"
         if not os.path.isdir(dir_path):
                 os.makedirs(dir_path)
 
@@ -75,3 +78,7 @@ class Analyzer:
         location = "upper left"
         ax_labels = ["Tx Rx distance (um)", "Jitter of RTT (s)"]
         draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
+
+        # adjustしているものだけのグラフ
+        current_dir_path = dir_path + "adjust_fig/"
+        # draw_adjust
