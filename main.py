@@ -6,7 +6,8 @@ def main():
     analyzer = Analyzer()
     # analyzer.draw_rtt_graph()
     analyzer.write_info_csv()
-    analyzer.draw_adjust_graph()
+    # analyzer.draw_adjust_graph()
+    analyzer.draw_decompoing_graph()
 
 if __name__ == '__main__':
     main()
