@@ -16,26 +16,31 @@ class Data:
         self.collision_data = None
         self.retransmission_data = None
 
-    def get_value(data, target_type):
+    def get_value(self, target_type):
         from src.draw_graph import Target, Parameter
         # Target
         # if type(target_type) is Target:
+        if not self.is_rtt():
+            from src.parser import parse_rtt
+            fname = "./result/batch_" + self.dat_data.output_file_name
+            self.rtt_data = parse_rtt(fname)
+
         if isinstance(target_type, Target):
             if target_type is Target.Mean:
-                return data.rtt_data.mean
+                return self.rtt_data.mean
             elif target_type is Target.Median:
-                return data.rtt_data.median
+                return self.rtt_data.median
             elif target_type is Target.Jitter:
-                return data.rtt_data.std
+                return self.rtt_data.std
 
         # Parameter
         elif isinstance(target_type, Parameter):
             if target_type is Parameter.Distance:
-                return data.dat_data.distance
+                return self.dat_data.distance
             elif target_type is Parameter.Duplication:
-                return data.dat_data.duplication
+                return self.dat_data.duplication
             elif target_type is Parameter.AdjustNum:
-                return data.dat_data.adjust_num
+                return self.dat_data.adjust_num
             else:
                 print("isinstance in data not defined {}...".format(target_type.name))
                 sys.exit(1)
