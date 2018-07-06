@@ -3,7 +3,7 @@ from src.common import get_file_list
 from src.parser import parse_dat
 from src.draw_graph import draw_rtt, draw_many_line_graph, Target, Parameter
 from src.data import Data
-from src.classify import classify_dict
+from src.classify import classify_dict, classify_dict_by_param
 import sys, os
 import pandas as pd
 
@@ -45,7 +45,55 @@ class Analyzer:
             draw_rtt(data)
 
     def draw_decompoing_graph(self):
-        pass
+
+        # ディレクトリ作成
+        dir_path = "./result_fig/"
+        if not os.path.isdir(dir_path):
+                os.makedirs(dir_path)
+
+        current_dict = classify_dict_by_param(self.data_dict, Parameter.MessageNum, 1, True)
+
+        for k, v in current_dict.items():
+            data_dict = {}
+            for i in v:
+                data_dict[i.dat_data.dat_file_name] = i
+
+            # Mean
+            # fig_name = dir_path + "message{}_mean.png".format(k)
+            # X, Y, labels = classify_dict(data_dict, Parameter.Distance, Target.Mean, [Parameter.Duplication, Parameter.Decomposing])
+            # location = "upper left"
+            # ax_labels = ["Tx Rx distance (um)", "Mean of RTT (s)"]
+            # draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
+            #
+            # # Median
+            # fig_name = dir_path + "message{}_median.png".format(k)
+            # X, Y, labels = classify_dict(data_dict, Parameter.Distance, Target.Median, [Parameter.Duplication, Parameter.Decomposing])
+            # location = "upper left"
+            # ax_labels = ["Tx Rx distance (um)", "Median of RTT (s)"]
+            # draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
+            #
+            # # Jitter
+            # fig_name = dir_path + "message{}_jitter.png".format(k)
+            # X, Y, labels = classify_dict(data_dict, Parameter.Distance, Target.Jitter, [Parameter.Duplication, Parameter.Decomposing])
+            # location = "upper left"
+            # ax_labels = ["Tx Rx distance (um)", "Jitter of RTT (s)"]
+            # draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
+
+            # CollisionNum
+            # fig_name = dir_path + "message{}_numberofcollision.png".format(k)
+            # X, Y, labels = classify_dict(data_dict, Parameter.Distance, Target.CollisionNum, [Parameter.Duplication, Parameter.Decomposing])
+            # location = "upper left"
+            # ax_labels = ["Tx Rx distance (um)", "The number of collision"]
+            # draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
+
+            # DecomposingNum
+            fig_name = dir_path + "message{}_numberofdecomposing.png".format(k)
+            X, Y, labels = classify_dict(data_dict, Parameter.Distance, Target.DecomposingNum, [Parameter.Duplication, Parameter.Decomposing])
+            location = "upper left"
+            ax_labels = ["Tx Rx distance (um)", "The number of decomposing"]
+            draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
+
+
 
     def draw_adjust_graph(self):
         # Mean Graph

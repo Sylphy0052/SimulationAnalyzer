@@ -20,7 +20,7 @@ class Data:
         from src.draw_graph import Target, Parameter
         # Target
         # if type(target_type) is Target:
-        if not self.is_rtt():
+        if self.rtt_data is None:
             from src.parser import parse_rtt
             fname = "./result/batch_" + self.dat_data.output_file_name
             self.rtt_data = parse_rtt(fname)
@@ -32,6 +32,18 @@ class Data:
                 return self.rtt_data.median
             elif target_type is Target.Jitter:
                 return self.rtt_data.std
+            elif target_type is Target.CollisionNum:
+                if self.collision_data is None:
+                    from src.parser import parse_coll
+                    fname = "./result/collision_batch_" + self.dat_data.output_file_name
+                    self.collision_data = parse_coll(fname)
+                return self.collision_data.collision_num
+            elif target_type is Target.DecomposingNum:
+                if self.collision_data is None:
+                    from src.parser import parse_coll
+                    fname = "./result/collision_batch_" + self.dat_data.output_file_name
+                    self.collision_data = parse_coll(fname)
+                return self.collision_data.decomposing_num
 
         # Parameter
         elif isinstance(target_type, Parameter):
@@ -41,16 +53,13 @@ class Data:
                 return self.dat_data.duplication
             elif target_type is Parameter.AdjustNum:
                 return self.dat_data.adjust_num
+            elif target_type is Parameter.MessageNum:
+                return self.dat_data.message_num
+            elif target_type is Parameter.Decomposing:
+                return self.dat_data.decomposing
             else:
                 print("isinstance in data not defined {}...".format(target_type.name))
                 sys.exit(1)
-
-
-    def is_rtt(self):
-        if self.rtt_data is None:
-            return False
-        else:
-            return True
 
     def get_column(self):
         return ["File Name", "Mean", "Median", "Var", "Std", "Min", "Max"]
@@ -146,6 +155,9 @@ class AdjustData:
     def __init__(self):
         pass
 
+"""
+collision_num: 衝突回数
+"""
 class CollisionData:
     def __init__(self):
         pass

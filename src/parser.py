@@ -1,4 +1,4 @@
-from src.data import DatData, RTTData, MoleculeType
+from src.data import DatData, RTTData, CollisionData, MoleculeType
 from src.common import split_complex_string
 import sys, math
 from statistics import mean, variance, stdev, median
@@ -72,3 +72,22 @@ def parse_rtt(fname):
     rtt_data.maximum = rtt_data.rtt[-1]
 
     return rtt_data
+
+def parse_coll(fname):
+    coll_data = CollisionData()
+    coll_data.collision_num = 0
+    coll_data.decomposing_num = 0
+    print("Reading {}...".format(fname))
+    with open(fname, 'r') as f:
+        for line in f:
+            datas = line.split(',')
+            if len(datas) == 2:
+                _, coll_nums = line.split(',')
+                coll_nums = [int(i) for i in coll_nums.split('/')]
+                coll_data.collision_num += sum(coll_nums)
+            elif len(datas) == 3:
+                _, coll_nums, decomposing_num = line.split(',')
+                coll_data.collision_num += sum([int(i) for i in coll_nums.split('/')])
+                coll_data.decomposing_num += int(decomposing_num)
+
+    return coll_data

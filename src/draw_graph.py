@@ -13,6 +13,8 @@ class Target(Enum):
     Mean = 1
     Median = 2
     Jitter = 3 # Standard deviation
+    CollisionNum = 4
+    DecomposingNum = 5
 
 class Parameter(Enum):
     Distance = 1
@@ -37,6 +39,9 @@ def draw_rtt(data):
     if not os.path.isdir(dir_path):
             os.makedirs(dir_path)
     fig_name = dir_path + data.dat_data.output_file_name + ".png"
+    if os.path.isfile(fig_name):
+        print("{} is exist.".format(fig_name))
+        return
     print("Draw {} in {}".format(fig_name.split('/')[2], dir_path.split('/')[1]))
 
     X, Y1, Y2 = data.rtt_data.create_plot_data()
@@ -85,6 +90,8 @@ def draw_two_line_graph(X, Y1, Y2, labels, ax_labels, location, fig_name):
 
 def draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name):
     for i in range(len(Y)):
+        if not len(Y[i]) == len(X):
+            continue
         plt.plot(X, Y[i], color=COLOR_LIST[i], label=labels[i], linestyle=STYLE_LIST[i])
 
     plt.xlabel(ax_labels[0])
