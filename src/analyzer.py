@@ -3,7 +3,7 @@ from src.common import get_file_list
 from src.parser import parse_dat
 from src.draw_graph import draw_rtt, draw_many_line_graph, Target, Parameter
 from src.data import Data
-from src.classify import classify_dict, classify_dict_by_param
+from src.classify import classify_dict, classify_dict_by_param, classify_dict_by_data
 import sys, os
 import pandas as pd
 
@@ -93,18 +93,59 @@ class Analyzer:
             ax_labels = ["Tx Rx distance (um)", "The number of decomposing"]
             draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
 
+            # DecomposingNum
+            fig_name = dir_path + "message{}_lastmolecularnumber.png".format(k)
+            X, Y, labels = classify_dict(data_dict, Parameter.Distance, Target.LastMolecularNumber, [Parameter.Duplication, Parameter.Decomposing])
+            location = "upper left"
+            ax_labels = ["Tx Rx distance (um)", "The number of last molecule"]
+            draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
 
+            # Failure Rate
+            fig_name = dir_path + "message{}_failurerate.png".format(k)
+            X, Y, labels = classify_dict(data_dict, Parameter.Distance, Target.FailureRate, [Parameter.Duplication, Parameter.Decomposing])
+            location = "upper left"
+            ax_labels = ["Tx Rx distance (um)", "Failure Rate"]
+            draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
+
+        current_dict = classify_dict_by_data(self.data_dict, [Parameter.MessageNum, Parameter.Duplication])
+
+        for k1, v1 in current_dict.items():
+            for k2, v2 in v1.items():
+                data_dict = {}
+                for i in v2:
+                    data_dict[i.dat_data.dat_file_name] = i
+
+                # DecomposingNum
+                fig_name = dir_path + "duplication{}_message{}_numberofdecomposing.png".format(k2, k1)
+                X, Y, labels = classify_dict(data_dict, Parameter.Distance, Target.DecomposingNum, [Parameter.Decomposing])
+                location = "upper left"
+                ax_labels = ["Tx Rx distance (um)", "The number of decomposing"]
+                draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
+
+                # DecomposingNum
+                fig_name = dir_path + "duplication{}_message{}_lastmolecularnumber.png".format(k2, k1)
+                X, Y, labels = classify_dict(data_dict, Parameter.Distance, Target.LastMolecularNumber, [Parameter.Decomposing])
+                location = "upper left"
+                ax_labels = ["Tx Rx distance (um)", "The number of last molecule"]
+                draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
 
     def draw_adjust_graph(self):
-        # Mean Graph
-        # X: distance or duplication
-        # Y1: no adjust
-        # Y2: adjust
-
         # ディレクトリ作成
         dir_path = "./result_fig/"
         if not os.path.isdir(dir_path):
                 os.makedirs(dir_path)
+
+        # print(self.data_dict)
+        # current_dict = classify_dict_by_param(self.data_dict, Parameter.MessageNum, 1, True)
+        # print("===")
+        # print(current_dict)
+        # import sys; sys.exit(1)
+
+        # for k, v in current_dict.items():
+        # for k, v in self.data_dict.items():
+        #     data_dict = {}
+        #     for i in v:
+        #         data_dict[i.dat_data.dat_file_name] = i
 
         # Mean
         fig_name = dir_path + "mean.png"
@@ -127,6 +168,30 @@ class Analyzer:
         ax_labels = ["Tx Rx distance (um)", "Jitter of RTT (s)"]
         draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
 
-        # adjustしているものだけのグラフ
-        current_dir_path = dir_path + "adjust_fig/"
+        # CollisionNum
+        fig_name = dir_path + "numberofcollision.png"
+        X, Y, labels = classify_dict(self.data_dict, Parameter.Distance, Target.CollisionNum, [Parameter.Duplication, Parameter.AdjustNum])
+        location = "upper left"
+        ax_labels = ["Tx Rx distance (um)", "The number of collision"]
+        draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
+
+        # DecomposingNum
+        fig_name = dir_path + "lastmolecularnumber.png"
+        X, Y, labels = classify_dict(self.data_dict, Parameter.Distance, Target.LastMolecularNumber, [Parameter.Duplication, Parameter.AdjustNum])
+        location = "upper left"
+        ax_labels = ["Tx Rx distance (um)", "The number of last molecule"]
+        draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
+
+        # Failure Rate
+        fig_name = dir_path + "failurerate.png"
+        X, Y, labels = classify_dict(self.data_dict, Parameter.Distance, Target.FailureRate, [Parameter.Duplication, Parameter.AdjustNum])
+        location = "upper left"
+        ax_labels = ["Tx Rx distance (um)", "Failure Rate"]
+        draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
+
         # draw_adjust
+        fig_name = dir_path + "last_duplication.png"
+        X, Y, labels = classify_dict(self.data_dict, Parameter.Distance, Target.LastDuplication, [Parameter.Duplication, Parameter.AdjustNum])
+        location = "upper left"
+        ax_labels = ["Tx Rx distance (um)", "Last Number of duplications"]
+        draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)

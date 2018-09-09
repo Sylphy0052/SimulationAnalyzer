@@ -1,4 +1,4 @@
-from src.data import DatData, RTTData, CollisionData, MoleculeType
+from src.data import DatData, RTTData, CollisionData, AdjustData, RetransmissionData, MoleculeType
 from src.common import split_complex_string
 import sys, math
 from statistics import mean, variance, stdev, median
@@ -70,6 +70,7 @@ def parse_rtt(fname):
     rtt_data.num = len(rtt_data.rtt)
     rtt_data.minimum = rtt_data.rtt[0]
     rtt_data.maximum = rtt_data.rtt[-1]
+    rtt_data.count = len(rtt_data.rtt)
 
     return rtt_data
 
@@ -91,3 +92,48 @@ def parse_coll(fname):
                 coll_data.decomposing_num += int(decomposing_num)
 
     return coll_data
+
+def parse_adjust(fname):
+    adjust_data = AdjustData()
+    last_info_nums = []
+    last_ack_nums = []
+    print("Reading {}...".format(fname))
+    with open(fname, 'r') as f:
+        for line in f:
+            last_datas = line.split(',')[-1].split('/')
+            last_info_nums.append(int(last_datas[1]))
+            last_ack_nums.append(int(last_datas[2]))
+
+    adjust_data.last_info_num = sum(last_info_nums) / len(last_info_nums)
+    adjust_data.last_ack_num = sum(last_ack_nums) / len(last_ack_nums)
+    adjust_data.last_num = (adjust_data.last_info_num + adjust_data.last_ack_num) / 2
+
+    return adjust_data
+
+def parse_retransmission(fname):
+    retransmission_data = RetransmissionData()
+    retransmit_nums = []
+    # something = 0
+    print("Reading {}...".format(fname))
+    with open(fname, 'r') as f:
+        for line in f:
+            f, retransmit_times = line.split(',', 1)
+            retransmission_data.failure_flg.append(f)
+            retransmit_nums.extend([int(i) for i in retransmit_times.split(',')[0].split('/') if not i == '0'])
+            ### To Do
+            ### error(empty array)
+            # transmitter_retransmit_nums = [int(i) for i in retransmit_times.split(',')[1].split('/') if not i == '0']
+            # receiver_retransmit_nums = [int(i) for i in retransmit_times.split(',')[2].split('/') if not i == '0']
+    #         print("======")
+    #         print(transmitter_retransmit_nums)
+    #         print(receiver_retransmit_nums)
+    #         print("------")
+    #         if len(transmitter_retransmit_nums) > 10 or len(receiver_retransmit_nums) > 5:
+    #             something += 1
+    # print(fname)
+    # print(something)
+    #
+    # import sys
+    # sys.exit(1)
+    retransmission_data.retransmit_num = len(retransmit_nums)
+    return retransmission_data

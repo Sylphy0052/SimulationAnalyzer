@@ -16,6 +16,8 @@ class Data:
         self.collision_data = None
         self.retransmission_data = None
 
+        self.column_array = ["File Name", "Mean", "Median", "Var", "Std", "Min", "Max"]
+
     def get_value(self, target_type):
         from src.draw_graph import Target, Parameter
         # Target
@@ -44,6 +46,30 @@ class Data:
                     fname = "./result/collision_batch_" + self.dat_data.output_file_name
                     self.collision_data = parse_coll(fname)
                 return self.collision_data.decomposing_num
+            elif target_type is Target.LastDuplication:
+                if self.adjust_data is None:
+                    from src.parser import parse_adjust
+                    fname = "./result/adjust_batch_" + self.dat_data.output_file_name
+                    import os
+                    if not os.path.exists(fname):
+                        return -1
+                    self.adjust_data = parse_adjust(fname)
+                return self.adjust_data.last_num
+            elif target_type is Target.LastMolecularNumber:
+                if self.collision_data is None:
+                    from src.parser import parse_coll
+                    fname = "./result/collision_batch_" + self.dat_data.output_file_name
+                    self.collision_data = parse_coll(fname)
+                if self.collision_data.last_num == -1:
+                    self.collision_data.calc_last_num(self)
+                return self.collision_data.last_num
+
+            elif target_type is Target.FailureRate:
+                if self.retransmission_data is None:
+                    from src.parser import parse_retransmission
+                    fname = "./result/retransmission_batch_" + self.dat_data.output_file_name
+                    self.retransmission_data = parse_retransmission(fname)
+                return len([i for i in self.retransmission_data.failure_flg if i == "F"]) / self.rtt_data.count
 
         # Parameter
         elif isinstance(target_type, Parameter):
@@ -62,7 +88,7 @@ class Data:
                 sys.exit(1)
 
     def get_column(self):
-        return ["File Name", "Mean", "Median", "Var", "Std", "Min", "Max"]
+        return self.column_array
 
     def to_array(self):
         if self.rtt_data is None:
@@ -75,7 +101,37 @@ class Data:
         std = self.rtt_data.std
         minimum = self.rtt_data.minimum
         maximum = self.rtt_data.maximum
-        return [fname, mean, median, var, std, minimum, maximum]
+
+        return_array = [fname, mean, median, var, std, minimum, maximum]
+
+        # Adjust
+        # if not self.adjust_data is None:
+        if not self.dat_data.adjust_num == 0:
+            if self.adjust_data is None:
+                from src.parser import parse_adjust
+                fname = "./result/adjust_batch_" + self.dat_data.output_file_name
+                import os
+                if not os.path.exists(fname):
+                    return -1
+                self.adjust_data = parse_adjust(fname)
+            self.column_array.append("Last Duplication Number")
+            return_array.append(self.adjust_data.last_num)
+
+        # Decomposing
+        if not self.dat_data.decomposing == 0:
+            if self.collision_data is None:
+                from src.parser import parse_coll
+                fname = "./result/collision_batch_" + self.dat_data.output_file_name
+                self.collision_data = parse_coll(fname)
+            self.column_array.append("Decomposing Number")
+            return_array.append(self.collision_data.decomposing_num)
+
+            if self.collision_data.last_num == -1:
+                self.collision_data.calc_last_num(self)
+            self.column_array.append("Molecular Num in Environment")
+            return_array.append(self.collision_data.last_num)
+
+        return return_array
 
 
 ## Parameter ##
@@ -114,6 +170,7 @@ std: 標準偏差
 num: シミュレーション回数
 minimum: 最小値
 maximum: 最大値
+count: シミュレーション回数
 """
 class RTTData:
     def __init__(self):
@@ -151,17 +208,43 @@ class RTTData:
 
         return X, Y1, Y2
 
+"""
+last_info_num: 最終infomation moleculeの個数の平均
+last_ack_num: 最終ackowledgement moleculeの個数の平均
+last_info_num: 最終moleculeの個数の平均
+"""
 class AdjustData:
     def __init__(self):
         pass
 
 """
 collision_num: 衝突回数
+decomposing_num: 消滅させた回数
+last_num: 最後に環境に残っていた分子の数
 """
 class CollisionData:
     def __init__(self):
-        pass
+        self.last_num = -1
 
+    def calc_last_num(self, data):
+        if data.retransmission_data is None:
+            from src.parser import parse_retransmission
+            fname = "./result/retransmission_batch_" + data.dat_data.output_file_name
+            data.retransmission_data = parse_retransmission(fname)
+
+        """
+        + 再送信回数 * duplication
+        + メッセージ送信回数 * 試行回数 * duplication * 2(info and ack)
+        - decomposing_num
+        """
+        self.last_num = data.dat_data.duplication * data.retransmission_data.retransmit_num
+        self.last_num += data.dat_data.message_num * data.dat_data.duplication * data.rtt_data.count * 2
+        self.last_num -= self.decomposing_num
+
+"""
+retransmit_num: 再送信回数
+failure_flg: 失敗(ファイル内)
+"""
 class RetransmissionData:
     def __init__(self):
-        pass
+        self.failure_flg = []

@@ -25,7 +25,7 @@ def dict_to_plot_data(data_dict, x_param, target_type, label_params):
                 x = data.get_value(x_param)
                 if not x in X:
                     X.append(x)
-                y.append(v.get_value(target_type))
+                y.append(data.get_value(target_type))
             Y.append(y)
             labels.append(label)
 

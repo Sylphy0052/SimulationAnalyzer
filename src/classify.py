@@ -15,6 +15,17 @@ def classify_dict(data_dict, x_param, target_type, label_params):
 
     return dict_to_plot_data(return_dict, x_param, target_type, label_params)
 
+def classify_dict_by_data(data_dict, params):
+    depth = 1
+    return_dict = data_dict
+
+    flg = True
+    for param in params:
+        return_dict = classify_dict_by_param(return_dict, param, depth, flg)
+        flg = False
+        depth += 1
+
+    return return_dict
 
 # 再起関数
 # 深さMaxならパラメータで分ける

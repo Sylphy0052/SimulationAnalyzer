@@ -1,4 +1,4 @@
 #!/bin/bash
 
-rm -r adjust_fig rtt_fig
+rm -r adjust_fig rtt_fig result_fig
 rm result.csv

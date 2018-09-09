@@ -15,6 +15,9 @@ class Target(Enum):
     Jitter = 3 # Standard deviation
     CollisionNum = 4
     DecomposingNum = 5
+    LastDuplication = 6
+    LastMolecularNumber = 7
+    FailureRate = 8
 
 class Parameter(Enum):
     Distance = 1
@@ -31,7 +34,8 @@ class Parameter(Enum):
 
 def draw_rtt(data):
     # RTT fileを読み込んでなかったら
-    if not data.is_rtt():
+    # if not data.is_rtt():
+    if not data.rtt_data:
         fname = "./result/batch_" + data.dat_data.output_file_name
         data.rtt_data = parse_rtt(fname)
 
@@ -91,6 +95,8 @@ def draw_two_line_graph(X, Y1, Y2, labels, ax_labels, location, fig_name):
 def draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name):
     for i in range(len(Y)):
         if not len(Y[i]) == len(X):
+            continue
+        if -1 in Y[i]:
             continue
         plt.plot(X, Y[i], color=COLOR_LIST[i], label=labels[i], linestyle=STYLE_LIST[i])
 
