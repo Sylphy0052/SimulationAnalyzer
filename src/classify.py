@@ -1,6 +1,6 @@
 from enum import Enum
 from src.draw_graph import Target
-from src.formatter import dict_to_plot_data
+from src.formatter import dict_to_plot_data, dict_to_plot_data_for_cumprob
 import sys
 
 def classify_dict(data_dict, x_param, target_type, label_params):
@@ -14,6 +14,18 @@ def classify_dict(data_dict, x_param, target_type, label_params):
         depth += 1
 
     return dict_to_plot_data(return_dict, x_param, target_type, label_params)
+
+def classify_dict_for_cumprob(data_dict, params, classify_params):
+    depth = 1
+    return_dict = data_dict
+
+    flg = True
+    for param in classify_params:
+        return_dict = classify_dict_by_param(return_dict, param, depth, flg)
+        flg = False
+        depth += 1
+
+    return dict_to_plot_data_for_cumprob(return_dict, params, classify_params)
 
 def classify_dict_by_data(data_dict, params):
     depth = 1

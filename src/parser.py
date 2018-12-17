@@ -28,7 +28,8 @@ def parse_dat(fname):
                     dat_data.duplication = int(values[0])
                     dat_data.molecule_type = MoleculeType(1) if values[2] == "PASSIVE" else MoleculeType(2)
                     dat_data.adjust_num = int(values[3])
-                    dat_data.diameter = float(values[4])
+                    if len(values) > 4:
+                        dat_data.diameter = float(values[4])
 
             # message_num
             elif key == "numMessages":

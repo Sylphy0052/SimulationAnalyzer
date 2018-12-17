@@ -18,6 +18,8 @@ class Target(Enum):
     LastDuplication = 6
     LastMolecularNumber = 7
     FailureRate = 8
+    CumProb = 9
+    # FailureRate5 = 10
 
 class Parameter(Enum):
     Distance = 1
@@ -30,7 +32,6 @@ class Parameter(Enum):
     AdjustNum = 8
     IsFEC = 9
     FEC_Rate = 10
-
 
 def draw_rtt(data):
     # RTT fileを読み込んでなかったら
@@ -114,6 +115,50 @@ def draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name):
     if max([max(i) for i in Y]) > 10 ** 6:
         plt.gca().yaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
         plt.gca().ticklabel_format(style="sci",  axis="y",scilimits=(0,0))
+
+    plt.savefig(fig_name, dpi=90, bbox_inches="tight", pad_inches=0.0)
+    plt.close('all')
+
+def draw_many_line_graph_for_cumprob(X, Y, labels, ax_labels, location, fig_name):
+    tmp_X = []
+    for x in X:
+        if len(tmp_X) < len(x):
+            tmp_X = x
+
+    for i in range(len(Y)):
+        if not len(Y[i]) == len(tmp_X):
+            while len(Y[i]) != len(tmp_X):
+                Y[i].append(100.0)
+            # print("Error not equal length Y[i] and X")
+            # continue
+        if -1 in Y[i]:
+            print("Error in Y[i]")
+            continue
+        plt.plot(tmp_X, Y[i], color=COLOR_LIST[i], label=labels[i], linestyle=STYLE_LIST[i])
+
+    plt.xlabel(ax_labels[0])
+    plt.ylabel(ax_labels[1])
+    plt.legend(loc=location)
+
+    plt.grid(True)
+
+    step = int(tmp_X[-1] / 10)
+
+
+    plt.xticks([i for i in range(0, tmp_X[-1], int(tmp_X[-1] / 10))])
+    # plt.xticks(X)
+
+    # if max(X) > 10 ** 6:
+        # plt.gca().xaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
+        # plt.gca().ticklabel_format(style="sci",  axis="x",scilimits=(0,0))
+
+    plt.gca().xaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
+    plt.gca().ticklabel_format(style="sci",  axis="x",scilimits=(0,0))
+    plt.gca().xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
+
+    # if max([max(i) for i in Y]) > 10 ** 6:
+    #     plt.gca().yaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
+    #     plt.gca().ticklabel_format(style="sci",  axis="y",scilimits=(0,0))
 
     plt.savefig(fig_name, dpi=90, bbox_inches="tight", pad_inches=0.0)
     plt.close('all')

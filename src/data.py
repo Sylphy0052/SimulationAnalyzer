@@ -63,13 +63,18 @@ class Data:
                 if self.collision_data.last_num == -1:
                     self.collision_data.calc_last_num(self)
                 return self.collision_data.last_num
-
+            # 再考の余地あり
+            # ~回以上で失敗にする
             elif target_type is Target.FailureRate:
                 if self.retransmission_data is None:
                     from src.parser import parse_retransmission
                     fname = "./result/retransmission_batch_" + self.dat_data.output_file_name
                     self.retransmission_data = parse_retransmission(fname)
                 return len([i for i in self.retransmission_data.failure_flg if i == "F"]) / self.rtt_data.count
+
+            elif target_type is Target.CumProb:
+                _, _, Y =  self.rtt_data.create_plot_data()
+                return Y
 
         # Parameter
         elif isinstance(target_type, Parameter):
@@ -86,6 +91,10 @@ class Data:
             else:
                 print("isinstance in data not defined {}...".format(target_type.name))
                 sys.exit(1)
+
+    def get_xrange(self):
+        X, _, _ =  self.rtt_data.create_plot_data()
+        return X
 
     def get_column(self):
         return self.column_array
@@ -118,18 +127,29 @@ class Data:
             return_array.append(self.adjust_data.last_num)
 
         # Decomposing
-        if not self.dat_data.decomposing == 0:
-            if self.collision_data is None:
-                from src.parser import parse_coll
-                fname = "./result/collision_batch_" + self.dat_data.output_file_name
-                self.collision_data = parse_coll(fname)
-            self.column_array.append("Decomposing Number")
-            return_array.append(self.collision_data.decomposing_num)
+        # if not self.dat_data.decomposing == 0:
+        #     if self.collision_data is None:
+        #         from src.parser import parse_coll
+        #         fname = "./result/collision_batch_" + self.dat_data.output_file_name
+        #         self.collision_data = parse_coll(fname)
+        #     self.column_array.append("Decomposing Number")
+        #     return_array.append(self.collision_data.decomposing_num)
+        #
+        #     if self.collision_data.last_num == -1:
+        #         self.collision_data.calc_last_num(self)
+        #     self.column_array.append("Molecular Num in Environment")
+        #     return_array.append(self.collision_data.last_num)
+        if self.collision_data is None:
+            from src.parser import parse_coll
+            fname = "./result/collision_batch_" + self.dat_data.output_file_name
+            self.collision_data = parse_coll(fname)
+        self.column_array.append("Decomposing Number")
+        return_array.append(self.collision_data.decomposing_num)
 
-            if self.collision_data.last_num == -1:
-                self.collision_data.calc_last_num(self)
-            self.column_array.append("Molecular Num in Environment")
-            return_array.append(self.collision_data.last_num)
+        if self.collision_data.last_num == -1:
+            self.collision_data.calc_last_num(self)
+        self.column_array.append("Molecular Num in Environment")
+        return_array.append(self.collision_data.last_num)
 
         return return_array
 
@@ -184,16 +204,18 @@ class RTTData:
         prob = 0.0
         cum_prob = 0.0
 
-        plot_range = self.maximum / 100.0
+        # plot_range = self.maximum / 100.0
+        plot_range = 1000
         head = 0
         tail= plot_range
 
         index = 0
 
-        while(index < len(self.rtt)):
+        while index < len(self.rtt):
             # 範囲内の時
             if self.rtt[index] < tail:
                 count += 1
+                index += 1
             # 範囲外になったら
             else:
                 prob = float(count) / len(self.rtt) * 100
@@ -204,7 +226,6 @@ class RTTData:
                 count = 0
                 head += plot_range
                 tail += plot_range
-            index += 1
 
         return X, Y1, Y2
 

@@ -1,11 +1,17 @@
 # データをなんやかんやするクラス
 from src.common import get_file_list
 from src.parser import parse_dat
-from src.draw_graph import draw_rtt, draw_many_line_graph, Target, Parameter
+from src.draw_graph import draw_rtt, draw_many_line_graph, Target, Parameter, draw_many_line_graph_for_cumprob
 from src.data import Data
-from src.classify import classify_dict, classify_dict_by_param, classify_dict_by_data
+from src.classify import classify_dict, classify_dict_by_param, classify_dict_by_data, classify_dict_for_cumprob
 import sys, os
 import pandas as pd
+from enum import IntEnum
+
+class DatType(IntEnum):
+    Normal = 1
+    Decomposing = 2
+    Adjust = 3
 
 # Mainから生成される
 class Analyzer:
@@ -40,12 +46,73 @@ class Analyzer:
 
         df.to_csv("result.csv")
 
-    def draw_rtt_graph(self):
-        for _, data in self.data_dict.items():
-            draw_rtt(data)
+    def draw_rtt_graph(self, dat_type):
+        if dat_type == DatType.Normal:
+            self.draw_normal_graph()
+        elif dat_type == DatType.Decomposing:
+            self.draw_decomposing_graph()
+        elif dat_type == DatType.Adjust:
+            self.draw_adjust_graph()
+
+        # for _, data in self.data_dict.items():
+        #     draw_rtt(data)
+
+    def draw_normal_graph(self):
+        # ディレクトリ作成
+        dir_path = "./result_fig/"
+        if not os.path.isdir(dir_path):
+                os.makedirs(dir_path)
+
+        # Mean
+        fig_name = dir_path + "mean.png"
+        X, Y, labels = classify_dict(self.data_dict, Parameter.Distance, Target.Mean, [Parameter.Duplication])
+        location = "upper left"
+        ax_labels = ["Tx Rx distance (um)", "Mean of RTT (s)"]
+        draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
+
+        # Median
+        fig_name = dir_path + "median.png"
+        X, Y, labels = classify_dict(self.data_dict, Parameter.Distance, Target.Median, [Parameter.Duplication])
+        location = "upper left"
+        ax_labels = ["Tx Rx distance (um)", "Median of RTT (s)"]
+        draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
+
+        # Jitter
+        fig_name = dir_path + "jitter.png"
+        X, Y, labels = classify_dict(self.data_dict, Parameter.Distance, Target.Jitter, [Parameter.Duplication])
+        location = "upper left"
+        ax_labels = ["Tx Rx distance (um)", "Jitter of RTT (s)"]
+        draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
+
+        # CollisionNum
+        fig_name = dir_path + "numberofcollision.png"
+        X, Y, labels = classify_dict(self.data_dict, Parameter.Distance, Target.CollisionNum, [Parameter.Duplication])
+        location = "upper left"
+        ax_labels = ["Tx Rx distance (um)", "The number of collision"]
+        draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
+
+        # Failure Rate
+        # fig_name = dir_path + "failurerate.png"
+        # X, Y, labels = classify_dict(self.data_dict, Parameter.Distance, Target.FailureRate, [Parameter.Duplication])
+        # location = "upper left"
+        # ax_labels = ["Tx Rx distance (um)", "Failure Rate"]
+        # draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
+
+        # CumProb
+        current_dict = classify_dict_by_param(self.data_dict, Parameter.Distance, 1, True)
+
+        for k, v in current_dict.items():
+            data_dict = {}
+            for i in v:
+                data_dict[i.dat_data.dat_file_name] = i
+
+            fig_name = dir_path + "distance{}_cumprob.png".format(k)
+            X, Y, labels = classify_dict_for_cumprob(data_dict, [Parameter.Duplication], [Parameter.Distance])
+            location = "lower right"
+            ax_labels = ["Steps", "Cumulative Probability(%)"]
+            draw_many_line_graph_for_cumprob(X, Y, labels, ax_labels, location, fig_name)
 
     def draw_decompoing_graph(self):
-
         # ディレクトリ作成
         dir_path = "./result_fig/"
         if not os.path.isdir(dir_path):
