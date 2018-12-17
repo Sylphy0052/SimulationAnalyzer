@@ -54,8 +54,8 @@ class Analyzer:
         elif dat_type == DatType.Adjust:
             self.draw_adjust_graph()
 
-        # for _, data in self.data_dict.items():
-        #     draw_rtt(data)
+        for _, data in self.data_dict.items():
+            draw_rtt(data)
 
     def draw_normal_graph(self):
         # ディレクトリ作成
@@ -66,28 +66,32 @@ class Analyzer:
         # Mean
         fig_name = dir_path + "mean.png"
         X, Y, labels = classify_dict(self.data_dict, Parameter.Distance, Target.Mean, [Parameter.Duplication])
-        location = "upper left"
+        # location = "upper left"
+        location = "best"
         ax_labels = ["Tx Rx distance (um)", "Mean of RTT (s)"]
         draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
 
         # Median
         fig_name = dir_path + "median.png"
         X, Y, labels = classify_dict(self.data_dict, Parameter.Distance, Target.Median, [Parameter.Duplication])
-        location = "upper left"
+        # location = "upper left"
+        location = "best"
         ax_labels = ["Tx Rx distance (um)", "Median of RTT (s)"]
         draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
 
         # Jitter
         fig_name = dir_path + "jitter.png"
         X, Y, labels = classify_dict(self.data_dict, Parameter.Distance, Target.Jitter, [Parameter.Duplication])
-        location = "upper left"
+        # location = "upper left"
+        location = "best"
         ax_labels = ["Tx Rx distance (um)", "Jitter of RTT (s)"]
         draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
 
         # CollisionNum
         fig_name = dir_path + "numberofcollision.png"
         X, Y, labels = classify_dict(self.data_dict, Parameter.Distance, Target.CollisionNum, [Parameter.Duplication])
-        location = "upper left"
+        # location = "upper left"
+        location = "best"
         ax_labels = ["Tx Rx distance (um)", "The number of collision"]
         draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
 
@@ -95,6 +99,7 @@ class Analyzer:
         # fig_name = dir_path + "failurerate.png"
         # X, Y, labels = classify_dict(self.data_dict, Parameter.Distance, Target.FailureRate, [Parameter.Duplication])
         # location = "upper left"
+        # location = "best"
         # ax_labels = ["Tx Rx distance (um)", "Failure Rate"]
         # draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
 
@@ -108,9 +113,18 @@ class Analyzer:
 
             fig_name = dir_path + "distance{}_cumprob.png".format(k)
             X, Y, labels = classify_dict_for_cumprob(data_dict, [Parameter.Duplication], [Parameter.Distance])
-            location = "lower right"
+            # location = "lower right"
+            location = "best"
             ax_labels = ["Steps", "Cumulative Probability(%)"]
             draw_many_line_graph_for_cumprob(X, Y, labels, ax_labels, location, fig_name)
+
+        # Failure Rate is over 5
+        fig_name = dir_path + "failurerate5.png"
+        X, Y, labels = classify_dict(self.data_dict, Parameter.Distance, Target.FailureRate5, [Parameter.Duplication])
+        # location = "upper left"
+        location = "best"
+        ax_labels = ["Tx Rx distance (um)", "Failure Rate is over 5"]
+        draw_many_line_graph(X, Y, labels, ax_labels, location, fig_name)
 
     def draw_decompoing_graph(self):
         # ディレクトリ作成

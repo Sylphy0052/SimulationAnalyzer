@@ -76,6 +76,14 @@ class Data:
                 _, _, Y =  self.rtt_data.create_plot_data()
                 return Y
 
+            elif target_type is Target.FailureRate5:
+                if self.retransmission_data is None:
+                    from src.parser import parse_retransmission
+                    fname = "./result/retransmission_batch_" + self.dat_data.output_file_name
+                    self.retransmission_data = parse_retransmission(fname)
+                retransmit_time = [i for i in self.retransmission_data.retransmit_arr if i >= 5]
+                return len(retransmit_time)
+
         # Parameter
         elif isinstance(target_type, Parameter):
             if target_type is Parameter.Distance:

@@ -114,13 +114,16 @@ def parse_adjust(fname):
 def parse_retransmission(fname):
     retransmission_data = RetransmissionData()
     retransmit_nums = []
+    retransmit_num = []
     # something = 0
     print("Reading {}...".format(fname))
     with open(fname, 'r') as f:
         for line in f:
             f, retransmit_times = line.split(',', 1)
             retransmission_data.failure_flg.append(f)
+            retransmit_time = [int(i) for i in retransmit_times.split(',')[0].split('/') if not i == '0']
             retransmit_nums.extend([int(i) for i in retransmit_times.split(',')[0].split('/') if not i == '0'])
+            retransmit_num.append(len(retransmit_time))
             ### To Do
             ### error(empty array)
             # transmitter_retransmit_nums = [int(i) for i in retransmit_times.split(',')[1].split('/') if not i == '0']
@@ -137,4 +140,5 @@ def parse_retransmission(fname):
     # import sys
     # sys.exit(1)
     retransmission_data.retransmit_num = len(retransmit_nums)
+    retransmission_data.retransmit_arr = retransmit_num
     return retransmission_data

@@ -19,7 +19,7 @@ class Target(Enum):
     LastMolecularNumber = 7
     FailureRate = 8
     CumProb = 9
-    # FailureRate5 = 10
+    FailureRate5 = 10
 
 class Parameter(Enum):
     Distance = 1
